@@ -1,0 +1,539 @@
+openapi: 3.0.3
+info:
+  contact:
+    email: fake@msbang.io
+  description: |-
+    This is a sample Tasks Hub Server based on the OpenAPI 3.0 specification.
+
+    Some useful links:
+    - [The Tasks Hub repository](https://github.com/vbelouso/tasks)
+    - [The source API definition](https://github.com/vbelouso/tasks/api/openapi-spec/v1/openapi.yaml)
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: Tasks Hub
+  version: 1.0.11
+servers:
+- url: http://localhost:8080
+tags:
+- description: Tasks management
+  name: tasks
+- description: Approvers management
+  name: approvers
+paths:
+  /v1/tasks:
+    get:
+      operationId: getTasks
+      parameters:
+      - description: Page number
+        explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          minimum: 1
+          type: integer
+        style: form
+      - description: Number of tasks per page
+        explode: true
+        in: query
+        name: size
+        required: false
+        schema:
+          default: 10
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/getTasks_200_response'
+          description: Success
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/getTasks_default_response'
+          description: Error
+      summary: Retrieves all tasks
+      tags:
+      - tasks
+    post:
+      description: Add a new task
+      operationId: addTask
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskRequest'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponse'
+          description: Task created successfully
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/getTasks_default_response'
+          description: Error
+      summary: Add a new task
+      tags:
+      - tasks
+  /v1/tasks/{taskId}:
+    delete:
+      description: Deletes a task by ID
+      operationId: deleteTask
+      parameters:
+      - description: Task ID to delete
+        explode: false
+        in: path
+        name: taskId
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "204":
+          description: success
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/getTasks_default_response'
+          description: Error
+      summary: Deletes a task
+      tags:
+      - tasks
+    get:
+      description: Returns a single task
+      operationId: getTaskById
+      parameters:
+      - description: ID of task to return
+        explode: false
+        in: path
+        name: taskId
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponse'
+          description: success
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/getTasks_default_response'
+          description: Error
+      summary: Find task by ID
+      tags:
+      - tasks
+    put:
+      description: Updates an existing task by ID
+      operationId: updateTask.
+      parameters:
+      - description: Task ID to update
+        explode: false
+        in: path
+        name: taskId
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/updateTask__200_response'
+          description: Success
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/getTasks_default_response'
+          description: Error
+      summary: Updates an existing task
+      tags:
+      - tasks
+  /v1/tasks/findByStatus:
+    get:
+      operationId: findTasksByStatus
+      parameters:
+      - description: Status values that need to be considered for filter
+        explode: true
+        in: query
+        name: status
+        required: true
+        schema:
+          enum:
+          - done
+          - processing
+          - rejected
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/TaskResponse'
+                type: array
+          description: success
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/getTasks_default_response'
+          description: Error
+      summary: Find tasks by status
+      tags:
+      - tasks
+  /v1/approvers:
+    get:
+      operationId: getApprovers
+      parameters:
+      - description: Page number
+        explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          minimum: 1
+          type: integer
+        style: form
+      - description: Number of approvers per page
+        explode: true
+        in: query
+        name: size
+        required: false
+        schema:
+          default: 10
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/getApprovers_200_response'
+          description: Success
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/getTasks_default_response'
+          description: Error
+      summary: Retrieve all approvers
+      tags:
+      - approvers
+    post:
+      description: Add a new approver
+      operationId: addApprover
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApproverRequest'
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApproverResponse'
+          description: success
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/getTasks_default_response'
+          description: Error
+      summary: Add a new approver
+      tags:
+      - approvers
+  /v1/approvers/findByEmail:
+    get:
+      operationId: findApproversByEmail
+      parameters:
+      - description: Email value that need to be considered for filter
+        explode: true
+        in: query
+        name: email
+        required: true
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApproverResponse'
+          description: success
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/getTasks_default_response'
+          description: Error
+      summary: Find approver by email
+      tags:
+      - approvers
+  /v1/approvers/{approver_email}:
+    delete:
+      description: Delete an existing approver by email
+      operationId: deleteApprover
+      parameters:
+      - description: The approver that needs to be deleted
+        explode: false
+        in: path
+        name: approver_email
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "204":
+          description: success
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/getTasks_default_response'
+          description: Error
+      summary: Delete approver
+      tags:
+      - approvers
+    put:
+      description: Updates an existing approver by email
+      operationId: updateApprover
+      parameters:
+      - description: approver that need to be updated
+        explode: false
+        in: path
+        name: approver_email
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApproverRequest'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/updateTask__200_response'
+          description: Success
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/getTasks_default_response'
+          description: Error
+      summary: Updates an existing approver
+      tags:
+      - approvers
+components:
+  requestBodies:
+    Task:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TaskRequest'
+      description: Task object that needs to be added to the store
+  responses:
+    SuccessResponse:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/updateTask__200_response'
+      description: Success
+    DefaultError:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/getTasks_default_response'
+      description: Error
+  schemas:
+    ApproverRequest:
+      example:
+        name: John Doe
+        email: jdoe@fake.com
+      properties:
+        name:
+          example: John Doe
+          type: string
+        email:
+          example: jdoe@fake.com
+          format: email
+          type: string
+      required:
+      - email
+      - name
+      type: object
+    ApproverResponse:
+      example:
+        name: John Doe
+        id: 0
+        email: jdoe@fake.com
+      properties:
+        id:
+          format: int64
+          type: integer
+        name:
+          example: John Doe
+          type: string
+        email:
+          example: jdoe@fake.com
+          format: email
+          type: string
+      required:
+      - email
+      - id
+      - name
+      type: object
+    TaskRequest:
+      example:
+        description: Task description
+        approvers:
+        - name: John Doe
+          email: jdoe@fake.com
+        - name: John Doe
+          email: jdoe@fake.com
+        title: Define OpenAPI specification
+      properties:
+        title:
+          example: Define OpenAPI specification
+          type: string
+        description:
+          example: Task description
+          type: string
+        approvers:
+          items:
+            $ref: '#/components/schemas/ApproverRequest'
+          type: array
+          xml:
+            wrapped: true
+      required:
+      - approverss
+      - description
+      - title
+      type: object
+      xml:
+        name: task
+    TaskResponse:
+      example:
+        description: Task description
+        approvers:
+        - name: John Doe
+          email: jdoe@fake.com
+        - name: John Doe
+          email: jdoe@fake.com
+        id: 0
+        title: Define OpenAPI specification
+      properties:
+        id:
+          format: int64
+          type: integer
+        title:
+          example: Define OpenAPI specification
+          type: string
+        description:
+          example: Task description
+          type: string
+        approvers:
+          items:
+            $ref: '#/components/schemas/ApproverRequest'
+          type: array
+          xml:
+            wrapped: true
+      required:
+      - approverss
+      - description
+      - status
+      - title
+      type: object
+    getTasks_200_response:
+      example:
+        tasks:
+        - description: Task description
+          approvers:
+          - name: John Doe
+            email: jdoe@fake.com
+          - name: John Doe
+            email: jdoe@fake.com
+          id: 0
+          title: Define OpenAPI specification
+        - description: Task description
+          approvers:
+          - name: John Doe
+            email: jdoe@fake.com
+          - name: John Doe
+            email: jdoe@fake.com
+          id: 0
+          title: Define OpenAPI specification
+      properties:
+        tasks:
+          items:
+            $ref: '#/components/schemas/TaskResponse'
+          type: array
+      type: object
+    getTasks_default_response:
+      properties:
+        message:
+          type: string
+        errorCode:
+          type: string
+      type: object
+    updateTask__200_response:
+      example:
+        message: success
+      properties:
+        message:
+          example: success
+          type: string
+      type: object
+    getApprovers_200_response:
+      example:
+        tasks:
+        - name: John Doe
+          id: 0
+          email: jdoe@fake.com
+        - name: John Doe
+          id: 0
+          email: jdoe@fake.com
+      properties:
+        tasks:
+          items:
+            $ref: '#/components/schemas/ApproverResponse'
+          type: array
+      type: object
